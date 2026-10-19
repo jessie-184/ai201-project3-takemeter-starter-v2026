@@ -54,11 +54,11 @@ My hardest boundary is a post that defends an idol by attacking the people criti
 
 ## 5.
 
-Only 20 of my 208 labels were done cold; the other 188 were pre-labelled with AI and then reviewed by me, so my own consistency as a labeler has only been tested on those 20 rows.
+On the 30-post staff agreement set, I agree with the staff labels on at least **21 / 30 (70%)**.
 
 **Why this target:**
 
-All 208 of my labels were pre-labelled with AI before I reviewed them, so my own consistency as a labeler hasn't been tested yet. 43% of my posts were borderline enough to flag, and the staff set is chosen to include ambiguous posts. So I expect real disagreements, but I'd want to agree on at least 7 in 10 before trusting my labels as a training signal. Below that, a low model score would be a labeling problem, not a model problem.
+Only 20 of my 208 labels were done cold; the other 188 were pre-labelled with AI and then reviewed by me, so my own consistency as a labeler has only been tested on those 20 rows. 43% of my posts were borderline enough to flag, and the staff set is chosen to include ambiguous posts. So I expect real disagreements, but I'd want to agree on at least 7 in 10 before trusting my labels as a training signal. Below that, a low model score would be a labeling problem, not a model problem.
 
 ---
 
