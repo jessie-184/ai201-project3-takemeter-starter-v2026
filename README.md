@@ -39,103 +39,106 @@
 
 ## What This Does
 
-<!-- Your community, and what your classifier sorts posts into. Three or four
-     sentences. -->
-
-
+TakeMeter sorts text posts and comments from r/kpop_uncensored, a public subreddit for unfiltered K-pop discussion, by the poster's stance toward the K-pop subject the post is mainly about. Each post gets one of three labels: `positive` (praise, enjoyment, support), `negative` (complaints, criticism, worry), or `neutral` (questions, explanations, analysis with no clear stance). The subreddit is a good test because a lot of its negativity is indirect: criticism framed as a "genuine question," praise of an idol inside a rant about fans, or "no shade" hedges in front of a takedown.
 
 ---
 
 ## Label Taxonomy
 
-<!-- Each label: a one-sentence definition and two real examples from your
-     reading. Then your decision rule for the hardest boundary.
+### `positive`
 
-     The decision rule is worth a point on its own and it's the thing most
-     people leave out. Every taxonomy has a hardest boundary. Name yours. -->
-
-### `label_one`
-
-**Definition:**
+**Definition:** The poster expresses enjoyment, praise, or support for the K-pop subject the post is mainly about.
 
 **Example 1:**
->
+> Does anyone still listen to B.I?His solo work is amazing
+> I was a huge fan of IKON and their music after the whole scandal I lost interest in the group.After that a while ago I listened to B.I's solo work and really enjoyed them..I hope his other song's get the same love as BTBT.
 
 **Example 2:**
->
+> Do you remember Kep1er's Up and Wing Wing?
+> After a really long time I listened to these songs and I love them. Their song writer was really really talented. The girls did so well too I don't follow them now what's going on with Kep1er?
 
-### `label_two`
+### `negative`
 
-**Definition:**
+**Definition:** The poster complains about, criticizes, or expresses worry or disapproval of the K-pop subject the post is mainly about.
 
 **Example 1:**
->
+> Honestly I haven’t been the biggest fan of the makeup and contacts that are used for idols recently. Makeup trends and contacts have always been there, but I feel like in the past the idols’ features were still accentuated somehow? Nowadays, it feels like everyone is wearing the same/very similar makeup that drowns out their features.
 
 **Example 2:**
->
+> High Up ent is literally wasting UNCHILD's potential
+> After the news of the delayed comeback, the company has provided no updates about the group. Like, what's going on at this point? They're still a nugu group; this kind of hiatus will hurt them
+
+### `neutral`
+
+**Definition:** The poster asks a question, explains facts, or analyzes without taking a favorable or unfavorable stance on the subject.
+
+**Example 1:**
+> How can a group qualify as the XX gen Leader?
+> This is probably opinion based, we can all agree on the 3rd and 2nd gen leaders though but why not 5th gen.
+> I've seen many people say Zerobaseone, Cortis, Illit but do we measure it by popularity? Or something else?
+> Was just wondering.
+
+**Example 2:**
+> Why Do K-Pop Albums Have So Many Versions?
+> I apologize if this is a dumb question, but can someone please explain why some companies release like 5+ versions of the same song or album? I was about to listen to ENHYPEN’s new album and saw that there are like 7 different versions out. Why is that?
 
 ### The hardest boundary
 
-**Which two labels:**
+**Which two labels:** `positive` vs. `negative`, when a post defends an idol by attacking the people criticizing them.
 
 **The decision rule I used every time:**
-<!-- e.g. "If the post names a specific checkable fact, it's `analysis`, even
-     if the tone is heated." -->
 
+First find what the post is mainly about: the thing the title and most sentences are aimed at. Then label the poster's attitude toward *that*. If the main purpose is complaining about people (fans, haters, a company, a fandom habit), the post is `negative`, even if it praises or defends an idol along the way. It's `positive` only when the main purpose is praise or enjoyment and any complaint is a side note.
 
+**Second rule, for `neutral` vs. `negative`:** Framing a post as a question doesn't make it `neutral`. If the body of the "question" states criticism as fact ("let's be honest, she's a terrible vocalist"), it's `negative`. It's `neutral` only when the poster is genuinely asking or explaining and offers no verdict of their own.
 
 ---
 
 ## The Dataset
 
-<!-- Where you collected from, how you labelled, your counts, and three hard
-     cases. -->
+**Where the posts came from:** r/kpop_uncensored (public subreddit), text posts only, no image posts. I copied posts by hand from the subreddit because new Reddit API access requires manual approval. 141 entries are original posts; 67 are replies from those posts' comment threads, marked "likely a comment" in the note column. Duplicates (the same post copied twice) were removed.
 
-**Where the posts came from:**
-
-**How I labelled them:** <!-- Cold first? Pre-labelled with AI and corrected?
-Say so plainly — the disclosure is required, not penalised. -->
+**How I labelled them:** All 208 labels were pre-labelled by an AI model (Claude), then reviewed by me. *[TODO: say exactly what you did, e.g. "I read every row and changed N labels", and which ones.]* The `note` column gives the evidence for each label: either `evidence:` followed by the phrases from the post that decide the label, or `verify:` for the 89 borderline rows, explaining why it could go another way.
 
 **Counts per label:**
 
 | Label | Count | Share |
 |---|---|---|
-|  |  |  |
-|  |  |  |
-|  |  |  |
-| **Total** |  | 100% |
+| `negative` | 79 | 38.0% |
+| `neutral` | 69 | 33.2% |
+| `positive` | 60 | 28.8% |
+| **Total** | 208 | 100% |
+
+*[TODO: update these if you change any labels during review.]*
 
 **Three hard cases**
 
-<!-- Any post that made you pause: what it was, which two labels it could have
-     been, and what you chose. These are worth more than the easy 190. -->
-
 **1.**
-> *The post:*
+> *The post:* "Bro k pop fans need to calm down" — the poster defends UNCHILD's Heekie going on hiatus ("Let my girl rest... they are people too") while attacking a commenter and calling the HYBE curse "bs."
 >
-> *Could have been:*
+> *Could have been:* `positive` (supports Heekie) or `negative` (angry at fans).
 >
-> *I chose, because:*
+> *I chose, because:* `negative`. The title and most of the post are aimed at other fans, not at Heekie, so by my decision rule the main purpose is the complaint.
 
 **2.**
-> *The post:*
+> *The post:* "I've had this curiosity for a while now... what is so special about her to reach this level of popularity?" — a long post about Lisa, framed as an honest question, that calls her "a terrible vocalist," her performances "quite repetitive," and her album "very poorly received."
 >
-> *Could have been:*
+> *Could have been:* `neutral` (it's a question asking for other opinions) or `negative`.
 >
-> *I chose, because:*
+> *I chose, because:* `negative`. The poster answers their own question with criticism in nearly every paragraph. Under my second rule, question framing doesn't make it neutral when the body is a verdict.
 
 **3.**
-> *The post:*
+> *The post:* "MEOVV's latest B Side is so good! Teddy gives these girls those edm empty chorus 100 times recycled songs every comeback and is fully wasting their talent... should have been the title track instead of Go Hard"
 >
-> *Could have been:*
+> *Could have been:* `positive` (praise for the B-side and MEOVV) or `negative` (criticism of Teddy and the title track).
 >
-> *I chose, because:*
+> *I chose, because:* `positive`. The post is mainly about the B-side, and the attitude toward it is clearly enthusiastic. The Teddy complaint is there to argue the B-side deserved more, so it supports the praise instead of replacing it.
 
 ---
 
 ## The Training Run
 
-<!-- Your starting model, your settings, and anything you changed and why. -->
+*[TODO: fill this in from the notebook after you run it. Don't guess these numbers.]*
 
 **Base model:**
 
@@ -147,32 +150,29 @@ Say so plainly — the disclosure is required, not penalised. -->
 split. If a label had fewer than about 8 in test, say so — it explains a lot
 of next unit's variance. -->
 
-
+<!-- Expect roughly 9 `positive` posts in the test split (60 total). If the
+     notebook shows fewer than 8, say so here. -->
 
 ---
 
 ## How I Used AI
 
-<!-- Two specific moments — what you asked, what came back, what you changed.
-
-     ⚠️ Plus disclosure of any pre-labelling. If you had a model pre-label a
-     batch and then read and corrected every one, say that. It's an allowed
-     workflow and disclosing it costs you nothing. Not disclosing it is the
-     problem. -->
-
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked Claude to go through r/kpop_uncensored, find 200+ text posts about K-pop, and put them in a CSV labeled negative/neutral/positive.
+- *What came back:* It couldn't open Reddit (the site was blocked for its web tools), and it explained that new Reddit API access now needs manual approval. It suggested copying posts by hand or applying for API access.
+- *What I changed:* I collected the posts myself, copying text-only posts and some comment replies from the subreddit and pasting them in batches.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* For each batch, I asked Claude to label every post and return the rows in my CSV template and follow my rule for label definition and pre-labelled samples I did on my own.
+- *What came back:* Labeled rows with no notes and hard to verify all the labels are correct. When it merged the batches, it also pointed out that posts defending an idol by attacking critics had been labeled inconsistently, some `positive` and some `negative`.
+- *What I changed:* I had it replace the empty note with evidence for each label, quoting the exact phrases that decide it, or `verify:` with a reason for borderline rows, so I could check each one quickly. 
 
 **Pre-labelling disclosure:**
+I labeled the first 20 rows myself, cold, before using any AI. These are marked cold in the note column. The remaining 188 rows were pre-labelled by an AI model. I pasted the posts in batches, and it returned a label for each one with a note quoting the phrases that decided it, or a verify: reason when the post could fit two labels. These rows are marked pre-labelled in the note column.
+
+I then the next pre-labelled row and changed 1 labels. Most changes were among the verify rows. 
 
 <!-- ═══════════════════════ UNIT 6 — THE TEST ═══════════════════════
 
@@ -190,8 +190,9 @@ of next unit's variance. -->
 |---|---|---|---|
 | Overall accuracy |  |  |  |
 | Macro F1 |  |  |  |
-| F1 — `label_one` |  |  |  |
-| F1 — `label_two` |  |  |  |
+| F1 — `positive` |  |  |  |
+| F1 — `negative` |  |  |  |
+| F1 — `neutral` |  |  |  |
 
 **What I predicted before I looked:**
 <!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A

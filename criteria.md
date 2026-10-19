@@ -3,111 +3,60 @@
 Five criteria that say what "working" means for this classifier, written in
 unit 5 **before** anything was trained.
 
-**All five are yours this time.** None are given. You've had two projects of
-practice.
+Community: r/kpop_uncensored. Labels: `positive`, `negative`, `neutral`.
+Data: 208 labeled examples — negative 79 (38%), neutral 69 (33%), positive 60 (29%).
 
-An acceptance criterion names a number. *"The model is accurate"* is an
-opinion. *"Every label has an F1 of at least 0.60 on the held-out set"* is a
-criterion.
-
-Under each, write a sentence or two on **why that number**. A reason that says
-something about your data or your taxonomy earns credit — *"I picked 0.60 F1
-for `reaction` because it's my smallest label and I only have about 50
-examples of it"*. A reason that could be attached to any project does not.
-
-> Missing your own targets next unit costs you nothing. Setting a target so
-> easy you can't miss it does.
-
----
-
-## Pick numbers you can defend
-
-Not numbers that sound impressive. Three labels means a coin-flip guesser gets
-about 33%, so a target of 0.40 is barely a target. Your number should sit
-somewhere you'd honestly call useful.
-
-**Cover at least three of these five areas.** They're here as prompts, not as a
-form to fill in — a criterion that fits none of them is fine if it names a
-number.
-
-| Area | A question it could answer |
-|---|---|
-| Overall accuracy | How often does it need to be right to be worth using? |
-| Per-label performance | Is one label allowed to be much worse than the others? |
-| Balance | How lopsided can your label counts get before it's a problem? |
-| Consistency | If someone else labelled the same posts, how often should you agree? |
-| Confidence | Should a confident prediction be right more often than an unsure one? |
-
-Two things worth knowing before you pick numbers, because both will affect
-whether you hit them:
-
-- **Your smallest label will have the jumpiest score.** If a label has 50
-  examples, about 8 land in the test split. An F1 computed on 8 examples moves
-  a lot between seeds. A target for that label should be looser than one for
-  your biggest label, and saying so is a good reason.
-- **Unit 6 tests across three seeds, and the target has to hold across all
-  three.** A target of 0.65 against results of 0.71, 0.62, 0.68 is a **miss**.
-  Pick with that in mind — it is stricter than it first sounds.
+Every target below has to hold on **all three seeds** (42, 7, 2024) to count as met.
 
 ---
 
 ## 1.
 
-<!-- Your criterion. It must name a number. -->
-
-
+Macro F1 of at least **0.55** on the held-out test set.
 
 **Why this target:**
 
-
+My three labels are fairly balanced, so a coin-flip guesser lands around 0.33 and always picking `negative` gives a macro F1 of about 0.18. But 89 of my 208 labels (43%) were flagged "verify" while labeling, so the labels are noisy, and the score has to clear 0.55 on all three seeds, not on average. 0.55 is well above guessing without assuming cleaner labels than I have.
 
 ---
 
 ## 2.
 
-<!-- Your criterion. -->
-
-
+The trained model's macro F1 beats the baseline's macro F1 by at least **0.05** on the same test posts.
 
 **Why this target:**
 
-
+The baseline only sees my one-sentence definitions. Sentiment is something a general language model already understands, so the baseline may do well on this task. If 208 examples of *my* labeling rules can't add 5 points over the definitions alone, then the fine-tuning didn't learn anything specific to how this community talks (sarcasm, "no shade" hedges, criticism framed as questions).
 
 ---
 
 ## 3.
 
-<!-- Your criterion. -->
-
-
+Every label has an F1 of at least **0.45** on the held-out set.
 
 **Why this target:**
 
-
+`positive` is my smallest label at 60 examples, so only about 9 land in the test split, and one wrong post moves its F1 by roughly 10 points between seeds. That's why this per-label floor is looser than criterion 1. It still catches a model that gets a decent average by mostly ignoring `positive`.
 
 ---
 
 ## 4.
 
-<!-- Your criterion. -->
-
-
+At most **20%** of the test posts that are truly `positive` or `negative` are predicted as the other one.
 
 **Why this target:**
 
-
+My hardest boundary is a post that defends an idol by attacking the people criticizing them. My decision rule sends those to `negative`, because the post's main purpose is the complaint. Swapping positive and negative is the worst mistake this classifier can make, worse than either one being confused with `neutral`. If it happens more than 1 time in 5, the model hasn't learned the rule, or I didn't apply it consistently.
 
 ---
 
 ## 5.
 
-<!-- Your criterion. -->
-
-
+On the 30-post staff agreement set, I agree with the staff labels on at least **21 / 30 (70%)**.
 
 **Why this target:**
 
-
+All 208 of my labels were pre-labelled with AI before I reviewed them, so my own consistency as a labeler hasn't been tested yet. 43% of my posts were borderline enough to flag, and the staff set is chosen to include ambiguous posts. So I expect real disagreements, but I'd want to agree on at least 7 in 10 before trusting my labels as a training signal. Below that, a low model score would be a labeling problem, not a model problem.
 
 ---
 
