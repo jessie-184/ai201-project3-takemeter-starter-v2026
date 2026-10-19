@@ -98,7 +98,7 @@ First find what the post is mainly about: the thing the title and most sentences
 
 **Where the posts came from:** r/kpop_uncensored (public subreddit), text posts only, no image posts. I copied posts by hand from the subreddit because new Reddit API access requires manual approval. 141 entries are original posts; 67 are replies from those posts' comment threads, marked "likely a comment" in the note column. Duplicates (the same post copied twice) were removed.
 
-**How I labelled them:** All 208 labels were pre-labelled by an AI model (Claude), then reviewed by me. *[TODO: say exactly what you did, e.g. "I read every row and changed N labels", and which ones.]* The `note` column gives the evidence for each label: either `evidence:` followed by the phrases from the post that decide the label, or `verify:` for the 89 borderline rows, explaining why it could go another way.
+**How I labelled them:** In two passes. First, I labelled 20 rows cold, on my own, using only my definitions and the decision rules above, without looking at any AI labels. These are marked `cold` in the `note` column. The remaining 188 rows were pre-labelled by an AI model (Claude) in batches. Each came back with a label and a note: either `evidence:` followed by the phrases that decide the label, or `verify:` explaining why the post could fit two labels (89 rows). These are marked `pre-labelled` in the `note` column. I then reviewed the pre-labelled rows, focusing on the `verify` rows, and changed 1 label.
 
 **Counts per label:**
 
@@ -109,7 +109,6 @@ First find what the post is mainly about: the thing the title and most sentences
 | `positive` | 60 | 28.8% |
 | **Total** | 208 | 100% |
 
-*[TODO: update these if you change any labels during review.]*
 
 **Three hard cases**
 
@@ -138,20 +137,23 @@ First find what the post is mainly about: the thing the title and most sentences
 
 ## The Training Run
 
-*[TODO: fill this in from the notebook after you run it. Don't guess these numbers.]*
-
-**Base model:**
-
-**Settings:** <!-- epochs, learning rate, batch size, seed -->
-
-**Anything I changed from the defaults, and why:**
-
-**Split sizes:** <!-- train / val / test, and per-label counts in the test
-split. If a label had fewer than about 8 in test, say so — it explains a lot
-of next unit's variance. -->
-
-<!-- Expect roughly 9 `positive` posts in the test split (60 total). If the
-     notebook shows fewer than 8, say so here. -->
+**Base model:** `distilbert-base-uncased`
+ 
+**Settings:** 3 epochs, learning rate 2e-5, batch size 16, max length 128 tokens, seed 42. Trained on an Apple Silicon GPU (MPS) with torch 2.14.1.
+ 
+**Anything I changed from the defaults, and why:** Nothing. The only edit was setting `LABELS = ["positive", "negative", "neutral"]` to match my CSV. I kept `MAX_LENGTH = 128` on purpose for this first run, even though it's a known problem for my data: my median post is about 131 words, and roughly 63% of posts are longer than 128 tokens, so the model only sees the start of most posts. That matters for my labels, because many posts open neutrally and only show their stance later (criticism framed as a question, "no shade, but…"). If I add the stretch run, I'll change one setting at a time.
+ 
+**Split sizes:** 70/15/15 stratified, done by the notebook: 144 train · 32 val · 32 test.
+ 
+| Label | Train | Val | Test |
+|---|---|---|---|
+| `positive` | 42 | 9 | 9 |
+| `negative` | 55 | 12 | 12 |
+| `neutral` | 47 | 11 | 11 |
+ 
+`positive` has only 9 test posts, just above the notebook's 8-post warning line. One post moves its F1 by about 10 points, so expect that score to swing between seeds next unit.
+ 
+**What the run looked like:** Training loss only went from 1.096 to 1.064 and validation loss from 1.090 to 1.080 over 3 epochs. For three balanced labels, random guessing is about 1.10, so the model was still close to guessing when training stopped. That's only 27 update steps (144 posts ÷ 16 per batch × 3 epochs). Results on the held-out test set (seed 42): accuracy 0.469, macro F1 0.372; F1 `positive` 0.364, `negative` 0.600, `neutral` 0.154. The most-confident third of predictions was right 60% of the time, versus 40% for the least-confident third. Saved in `results.json` and `test_split.csv`.
 
 ---
 

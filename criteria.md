@@ -44,6 +44,8 @@ Every label has an F1 of at least **0.45** on the held-out set.
 
 At most **20%** of the test posts that are truly `positive` or `negative` are predicted as the other one.
 
+Measured from the confusion matrix as (true `positive` predicted `negative` + true `negative` predicted `positive`) ÷ (all true `positive` + true `negative` test posts). With seed 42's split that's swaps ÷ 21, so at most 4 swaps.
+
 **Why this target:**
 
 My hardest boundary is a post that defends an idol by attacking the people criticizing them. My decision rule sends those to `negative`, because the post's main purpose is the complaint. Swapping positive and negative is the worst mistake this classifier can make, worse than either one being confused with `neutral`. If it happens more than 1 time in 5, the model hasn't learned the rule, or I didn't apply it consistently.
@@ -52,7 +54,7 @@ My hardest boundary is a post that defends an idol by attacking the people criti
 
 ## 5.
 
-On the 30-post staff agreement set, I agree with the staff labels on at least **21 / 30 (70%)**.
+Only 20 of my 208 labels were done cold; the other 188 were pre-labelled with AI and then reviewed by me, so my own consistency as a labeler has only been tested on those 20 rows.
 
 **Why this target:**
 
