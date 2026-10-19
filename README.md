@@ -161,9 +161,9 @@ First find what the post is mainly about: the thing the title and most sentences
 
 **Moment 1**
 
-- *What I asked for:* I asked Claude to go through r/kpop_uncensored, find 200+ text posts about K-pop, and put them in a CSV labeled negative/neutral/positive.
-- *What came back:* It couldn't open Reddit (the site was blocked for its web tools), and it explained that new Reddit API access now needs manual approval. It suggested copying posts by hand or applying for API access.
-- *What I changed:* I collected the posts myself, copying text-only posts and some comment replies from the subreddit and pasting them in batches.
+- *What I asked for:* After I'm done drafting a first version of `criteria.md`, I asked it to double-check my criteria against the template and the grading rubric to see if they were reasonable and testable.
+- *What came back:* It said criterion 4 ("at most 20% of positive/negative posts predicted as the other") could be read two ways and needed a formula. It also caught that an edit I made had replaced criterion 5's target line, so criterion 5 no longer named a number. And it warned me not to change any targets after seeing my first training results, because lowering a missed target costs the point.
+- *What I changed:* I added the formula to criterion 4, (positive→negative + negative→positive) ÷ all true positive and negative test posts, which is at most 4 swaps out of 21 with seed 42. I restored criterion 5's 21/30 target and updated its reason to say 20 rows were labelled cold and 188 were pre-labelled. I left all five targets unchanged, even though my seed-42 run already misses criteria 1 and 3.
 
 **Moment 2**
 
