@@ -190,21 +190,25 @@ I then the next pre-labelled row and changed 1 labels. Most changes were among t
 
 | Measure | Baseline | Trained | Difference |
 |---|---|---|---|
-| Overall accuracy |  |  |  |
-| Macro F1 |  |  |  |
-| F1 — `positive` |  |  |  |
-| F1 — `negative` |  |  |  |
-| F1 — `neutral` |  |  |  |
+| Overall accuracy | 0.688 | 0.469 | -0.219 |
+| Macro F1 | 0.686 | 0.372 | -0.313 |
+| F1 — `negative` | 0.667 | 0.600 | -0.067 |
+| F1 — `neutral` | 0.696 | 0.154 | -0.542 |
+| F1 — `positive` | 0.696 | 0.364 | -0.332 |
 
 **What I predicted before I looked:**
-<!-- Milestone 1 asks you to write this BEFORE seeing the trained numbers. A
-     prediction made afterwards isn't one. -->
+I took a glance at the F1 values from running the notebook in Unit 5. The F1 of negative class is the highest and it barely got trained only 3 epochs. Therefore, my guess was that the trained model would only beat the baseline on negative with F1 of 0.600, because it predicted negative for almost every post, and would lose badly on neutral with lowest F1 (0.154).
 
 **What the gap actually means:**
 <!-- If the baseline matched your trained model, your fine-tuning added
      nothing — and that is a real finding, not a failure. Say it plainly. -->
+**What the gap actually means:**
 
+**What the gap actually means:**
 
+My fine-tuning added nothing; the short fine-tuning even create confusion in making prediction. The zero-shot baseline beat my trained model on every measure (macro F1 0.686 vs. 0.372). My prediction was half right: it lost worst on `neutral` (−0.542), but it also lost on `negative`, because calling 28 of 32 posts `negative` gave perfect recall but poor precision (0.43).
+
+The gap comes from my training run, not the task. After only 27 steps the loss was still near guessing level (about 1.10), so the model fell back to my largest label. The baseline already understands praise vs. complaint vs. question, and it read each whole post while mine read only the first 128 tokens. Criterion 2 is missed: the trained model needed 0.736 and reached 0.372.
 
 ---
 
