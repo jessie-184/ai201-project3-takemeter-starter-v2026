@@ -201,7 +201,7 @@ I took a glance at the F1 values from running the notebook in Unit 5. The F1 of 
 
 **What the gap actually means:**
 
-My fine-tuning added nothing; the short fine-tuning even create confusion in making prediction. The zero-shot baseline beat my trained model on every measure (macro F1 0.686 vs. 0.372). My prediction was half right: it lost worst on `neutral` (−0.542), but it also lost on `negative`, because calling 28 of 32 posts `negative` gave perfect recall but poor precision (0.43).
+My fine-tuning added nothing; the short fine-tuning even created confusion in making prediction. The zero-shot baseline beat my trained model on every measure (macro F1 0.686 vs. 0.372). My prediction was half right: it lost worst on `neutral` (−0.542), but it also lost on `negative`, because calling 28 of 32 posts `negative` gave perfect recall but poor precision (0.43).
 
 The gap comes from my training run, not the task. After only 27 steps the loss was still near guessing level (about 1.10), so the model fell back to my largest label. The baseline already understands praise vs. complaint vs. question, and it read each whole post while mine read only the first 128 tokens. Criterion 2 is missed: the trained model needed 0.736 and reached 0.372.
 
@@ -294,7 +294,7 @@ With no disagreements, there's no evidence that I apply a written rule loosely, 
 
 **Which diagnosis pointed at it:** All four misses traced to the model collapsing to `negative`: training loss stuck at the 1.10 guessing level after 27 steps, and seed 7 predicted `negative` for every post. My 30/30 staff agreement argued against a labelling cause, so I changed training rather than labels.
 
-## Run Log — After
+### Run Log — After
 
 `EPOCHS` changed from 3 to 10 (about 90 update steps instead of 27); every other setting the same as Before. Apple Silicon GPU (MPS), torch 2.14.1.
 
