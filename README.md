@@ -279,7 +279,7 @@ All four misses share one main cause: **the model can't reach this task with thi
 
 None. I matched staff on all 30 posts, so there is nothing to sort into piles (a), (b) or (c).
 
-**Was the set easy, or is the rule tight?** Mostly the set was easy. The posts are grouped by type in id order (sp_001–010 cite measurements, sp_011–020 are short unsupported claims, sp_021–030 are in-the-moment personal moments), and most posts fit one definition cleanly. The staff decision rules did the work on the few boundary posts, such as [name one or two, e.g. a post that cites a number but only to decorate a confident claim]. So I'd say the rules are tight, but this set didn't test them hard.
+**Was the set easy, or is the rule tight?** Some of both. Most posts fit one definition cleanly, and the ids are grouped by label (sp_001–010, 011–020, 021–030), which may have hinted at the answer. But staff's own file flags 7 of the 30 as hard, and I matched all 7: sp_005 and sp_010 (`analysis` that reads like opinion or rests on a tiny sample), sp_014 (a 3% stat used as decoration, so `hot_take` under rule 1), sp_019 and sp_020 (general claims that sound reflective or observational, so `hot_take`), and sp_028 and sp_029 (personal posts with a countable fact or a shoe observation, but still `reaction` under rules 2 and 3). Agreeing on the posts chosen to be hard, across all three rules, suggests the rules are tight enough to apply the same way twice, with the caveat that the id order made this set easier than a shuffled one.
 
 **What the pattern in my disagreements tells me:**
 
