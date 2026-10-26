@@ -209,16 +209,29 @@ The gap comes from my training run, not the task. After only 27 steps the loss w
 
 ## Run Log — Before
 
-<!-- Five criteria across three seeds. The notebook's section 6 prints the
-     spread table; the Target and Verdict columns are yours. -->
+All three seeds trained on an Apple Silicon GPU (MPS), torch 2.14.1, same settings as unit 5.
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1. Macro F1 | ≥ 0.55 | 0.372 | 0.182 | 0.361 | MISSED |
+| 2. Beats baseline macro F1 | ≥ +0.05 (≥ 0.736) | −0.314 (0.372 vs 0.686) | — | — | MISSED |
+| 3. Every label's F1 | ≥ 0.45 | positive 0.364, neutral 0.154 | positive 0.000, neutral 0.000 | positive 0.000 | MISSED |
+| 4. positive↔negative swaps | ≤ 20% | 6/21 = 28.6% | 9/21 = 42.9% | 8/21 = 38.1% | MISSED |
+| 5. Staff agreement | ≥ 21/30 | 30/30 | 30/30 | 30/30 | MET |
+
+Criterion 2 has one value because `baseline.py` scores only the seed-42 test split saved in `test_split.csv`.
+
+**Spread across seeds** (from the notebook's section 6):
+
+| Measure | Seed 42 | Seed 7 | Seed 2024 | Spread |
+|---|---|---|---|---|
+| Overall accuracy | 0.469 | 0.375 | 0.469 | 0.094 |
+| Macro F1 | 0.372 | 0.182 | 0.361 | 0.191 |
+| F1 — `positive` | 0.364 | 0.000 | 0.000 | 0.364 |
+| F1 — `negative` | 0.600 | 0.545 | 0.556 | 0.055 |
+| F1 — `neutral` | 0.154 | 0.000 | 0.526 | 0.526 |
+
+Accuracy moved 0.094 across seeds, just under the 10-point line the notebook flags. But macro F1 moved 0.191 and per-label F1 moved as much as 0.526, and seed 7 predicted `negative` for every post. On a 32-post test set the per-label scores aren't stable enough to trust from a single split, which is why every verdict above uses all three seeds.
 
 ### Confusion matrix
 
