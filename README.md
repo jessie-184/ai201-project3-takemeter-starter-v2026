@@ -331,23 +331,6 @@ Yes, partly. Comparing Run Log — Before and After on the same three seeds:
 
 It still misses criteria 1–4, and it's still below the baseline (0.500 vs 0.686 on seed 42). Seed 2024 meets criteria 1, 3 and 4, but seed 7 misses them all, and a target has to hold on all three. Two results limit how far the fix can go. First, accuracy now moves 0.156 across seeds, over the 10-point line, so with 32 test posts the measurement itself is unstable. Second, in the 10-epoch training run, training loss fell from 1.10 to 0.63 while validation loss only moved from 1.09 to about 1.02. The model fits its 144 training posts far better than new ones. So more epochs fixed the undertraining, and what limits the model now is the amount of data, not the number of training steps.
 
-
----
-
-## What's Still Broken
-
-**Criterion 1 (macro F1 ≥ 0.55): 0.500 / 0.408 / 0.586.** Only seed 2024 clears it. What I'd do: label more posts. The 10-epoch run showed training loss falling to 0.63 while validation loss stayed near 1.02, so the model is now limited by its 144 training posts, not by training steps. Why I stopped: another 100+ carefully labelled posts is a full labelling pass, not a one-change fix.
-
-**Criterion 2 (beat the baseline by 0.05): −0.100 to −0.278 behind.** What I'd do: score the baseline on all three seed splits instead of only seed 42, so every column is like-for-like, and try a larger pre-trained model fine-tuned on my labels. Why I stopped: zero-shot BART with my written definitions is the stronger classifier on this data, and a settings change alone won't close a gap this size.
-
-**Criterion 3 (every label ≥ 0.45): seed 7's `positive` 0.421 and `neutral` 0.250.** What I'd do: let the model read more of each post. About 63% of my posts are longer than 128 tokens, and many reveal their stance late. I tested this next as Improvement 2 (`MAX_LENGTH` 256). Why I stopped here: the milestone allows one change per measured run.
-
-**Criterion 4 (≤ 20% positive↔negative swaps): 28.6% / 28.6% / 19.0%.** What I'd do: relabel the 6 `positive` posts that break my hardest-boundary rule (they defend an idol by attacking critics, which my rule calls `negative`). Why I stopped: a relabel needs its own measured run, and I measured `MAX_LENGTH` first.
-
-**The gap between what I meant my labels to capture and what the model learned:**
-
-I meant `neutral` to mean "asks or explains without a verdict," but the model learned something closer to "doesn't sound angry": on seed 42 it called 5 of 11 real `neutral` posts `negative`, with 3 going the other way. It also hadn't fully learned my rule for posts that defend an idol by attacking critics, with 4 real `positive` posts called `negative` and 2 the other way.
-
 ---
 
 ## The Improvement 2 (Stretch Features)
@@ -402,7 +385,7 @@ Partly. Comparing Run Log — After and After 2 on the same three seeds:
 
 It did not fix `neutral`. That label is still the weakest (0.222 on seed 7), and the biggest confusion is still `neutral` posts called `negative`, 5 one way and 2 the other. Reading more of each post helped the positive/negative boundary but not the line between a genuine question and criticism phrased as one.
 
---
+---
 
 ## What's Still Broken
 
