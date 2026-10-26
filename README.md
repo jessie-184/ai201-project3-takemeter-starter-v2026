@@ -227,20 +227,15 @@ The gap comes from my training run, not the task. After only 27 steps the loss w
 
 ### Confusion matrix
 
-<!-- ⚠️ TYPED AS A MARKDOWN TABLE. The notebook prints one ready to paste.
-     An image of a matrix earns nothing. -->
-
-| true \ predicted |  |  |  |
+| true \ predicted | positive | negative | neutral |
 |---|---|---|---|
-| **** |  |  |  |
-| **** |  |  |  |
-| **** |  |  |  |
+| **positive** | 2 | 6 | 1 |
+| **negative** | 0 | 12 | 0 |
+| **neutral** | 0 | 10 | 1 |
 
 **My biggest off-diagonal number, and what it means:**
-<!-- Not "the model made mistakes" — WHICH boundary it didn't learn, and which
-     direction. "7 real analysis posts were called hot_take and only 3 went the
-     other way" is a direction, not just an error rate. -->
 
+10 real `neutral` posts were called `negative`, and 0 `negative` posts went the other way. The model never learned the `neutral` boundary; it defaulted to `negative`, my largest training label (55 of 144). This is a collapse to one label, not confusion between two: 6 of 9 `positive` posts also went to `negative`, and 28 of 32 predictions overall were `negative`. Seed 7 went all the way: it predicted `negative` for every post (accuracy 0.375 = 12/32, `positive` and `neutral` F1 both 0). The notebook says a lopsided pair usually points at labelling, but because every label drains into the same column and the training loss stayed at guessing level, I read this as an undertrained model. The agreement report will check whether my `neutral`/`negative` labels are also part of the problem.
 
 
 ---
