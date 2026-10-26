@@ -335,6 +335,8 @@ It still misses criteria 1–4, and it's still below the baseline (0.500 vs 0.68
 
 ## The Improvement 2 (Stretch Features)
 
+**Stretch features:** a second measured improvement (`MAX_LENGTH` 128 → 256) and a confidence check (most- vs. least-confident accuracy, reported in both improvements).
+
 **What I changed:** `MAX_LENGTH` from 128 to 256 tokens. Nothing else: `EPOCHS` stayed at 10, with the original labels and the same three seeds as Run Log — After.
 
 **Which diagnosis pointed at it:** After Improvement 1, the biggest confusion was still `neutral` vs `negative`, and the positive↔negative swaps (28.6% on two seeds) still missed criterion 4. About 63% of my posts are longer than 128 tokens, and many only reveal their stance late (criticism framed as a question, "no shade, but…"), so the model was labelling posts it had only partly read.
