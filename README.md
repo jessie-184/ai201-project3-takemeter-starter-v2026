@@ -288,7 +288,7 @@ With no disagreements, there's no evidence that I apply a written rule loosely, 
 
 ---
 
-## The Improvement
+## The Improvement 1
 
 **What I changed:** `EPOCHS` from 3 to 10 (about 90 update steps instead of 27). Nothing else.
 
@@ -336,15 +336,85 @@ It still misses criteria 1–4, and it's still below the baseline (0.500 vs 0.68
 
 ## What's Still Broken
 
-<!-- For each criterion still missed: what you'd do, and why you stopped. -->
+**Criterion 1 (macro F1 ≥ 0.55): 0.500 / 0.408 / 0.586.** Only seed 2024 clears it. What I'd do: label more posts. The 10-epoch run showed training loss falling to 0.63 while validation loss stayed near 1.02, so the model is now limited by its 144 training posts, not by training steps. Why I stopped: another 100+ carefully labelled posts is a full labelling pass, not a one-change fix.
 
+**Criterion 2 (beat the baseline by 0.05): −0.100 to −0.278 behind.** What I'd do: score the baseline on all three seed splits instead of only seed 42, so every column is like-for-like, and try a larger pre-trained model fine-tuned on my labels. Why I stopped: zero-shot BART with my written definitions is the stronger classifier on this data, and a settings change alone won't close a gap this size.
 
+**Criterion 3 (every label ≥ 0.45): seed 7's `positive` 0.421 and `neutral` 0.250.** What I'd do: let the model read more of each post. About 63% of my posts are longer than 128 tokens, and many reveal their stance late. I tested this next as Improvement 2 (`MAX_LENGTH` 256). Why I stopped here: the milestone allows one change per measured run.
 
-**The gap between what I meant my labels to capture and what the model
-learned:**
-<!-- Two sentences. Your confusion matrix is the evidence. -->
+**Criterion 4 (≤ 20% positive↔negative swaps): 28.6% / 28.6% / 19.0%.** What I'd do: relabel the 6 `positive` posts that break my hardest-boundary rule (they defend an idol by attacking critics, which my rule calls `negative`). Why I stopped: a relabel needs its own measured run, and I measured `MAX_LENGTH` first.
 
+**The gap between what I meant my labels to capture and what the model learned:**
 
+I meant `neutral` to mean "asks or explains without a verdict," but the model learned something closer to "doesn't sound angry": on seed 42 it called 5 of 11 real `neutral` posts `negative`, with 3 going the other way. It also hadn't fully learned my rule for posts that defend an idol by attacking critics, with 4 real `positive` posts called `negative` and 2 the other way.
+
+---
+
+## The Improvement 2 (Stretch Features)
+
+**What I changed:** `MAX_LENGTH` from 128 to 256 tokens. Nothing else: `EPOCHS` stayed at 10, with the original labels and the same three seeds as Run Log — After.
+
+**Which diagnosis pointed at it:** After Improvement 1, the biggest confusion was still `neutral` vs `negative`, and the positive↔negative swaps (28.6% on two seeds) still missed criterion 4. About 63% of my posts are longer than 128 tokens, and many only reveal their stance late (criticism framed as a question, "no shade, but…"), so the model was labelling posts it had only partly read.
+
+### Run Log — After 2
+
+`MAX_LENGTH` changed from 128 to 256; every other setting the same as Run Log — After. Apple Silicon GPU (MPS), torch 2.14.1.
+
+| Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
+|---|---|---|---|---|---|
+| 1. Macro F1 | ≥ 0.55 | 0.586 | 0.446 | 0.489 | MISSED |
+| 2. Beats baseline macro F1 | ≥ +0.05 (≥ 0.736) | −0.100 (0.586) | −0.240 (0.446) | −0.197 (0.489) | MISSED |
+| 3. Every label's F1 | ≥ 0.45 | all ≥ 0.471 | neutral 0.222 | all ≥ 0.455 | MISSED |
+| 4. positive↔negative swaps | ≤ 20% | 4/21 = 19.0% | 3/21 = 14.3% | 4/21 = 19.0% | **MET** |
+| 5. Staff agreement | ≥ 21/30 | 30/30 | 30/30 | 30/30 | MET |
+
+Criterion 2 compares every seed against the baseline's seed-42 score (0.686). Only the seed-42 column is like-for-like.
+
+**Spread across seeds:**
+
+| Measure | Seed 42 | Seed 7 | Seed 2024 | Spread |
+|---|---|---|---|---|
+| Overall accuracy | 0.594 | 0.469 | 0.500 | 0.125 |
+| Macro F1 | 0.586 | 0.446 | 0.489 | 0.140 |
+| F1 — `positive` | 0.667 | 0.500 | 0.462 | 0.205 |
+| F1 — `negative` | 0.621 | 0.615 | 0.552 | 0.069 |
+| F1 — `neutral` | 0.471 | 0.222 | 0.455 | 0.248 |
+
+Accuracy moved 0.125 across seeds, still over the 10-point line, so the measurement is still unstable.
+
+### Confusion matrix — after 2 (seed 42)
+
+| true \ predicted | positive | negative | neutral |
+|---|---|---|---|
+| **positive** | 6 | 3 | 0 |
+| **negative** | 1 | 9 | 2 |
+| **neutral** | 2 | 5 | 4 |
+
+**Biggest off-diagonal:** 5 real `neutral` posts were called `negative`, and only 2 went the other way.
+
+**Did it help, and how do I know:**
+
+Partly. Comparing Run Log — After and After 2 on the same three seeds:
+
+- **Criterion 4 is now met on every seed** (19.0% / 14.3% / 19.0%, down from 28.6% / 28.6% / 19.0%). This is the first model criterion I've met, so reading more of each post helped the model separate `positive` from `negative`.
+- **Macro F1 barely moved overall** (mean 0.498 → 0.507). Seed 42 rose (0.500 → 0.586) and seed 7 rose a little (0.408 → 0.446), but seed 2024 fell (0.586 → 0.489). That change is smaller than the 0.125 spread between seeds, so I can't call it real.
+- **Confidence is now consistent:** on every seed, the most-confident third was right 70–80% of the time and the least-confident third only 20–30%.
+
+It did not fix `neutral`. That label is still the weakest (0.222 on seed 7), and the biggest confusion is still `neutral` posts called `negative`, 5 one way and 2 the other. Reading more of each post helped the positive/negative boundary but not the line between a genuine question and criticism phrased as one.
+
+--
+
+## What's Still Broken
+
+**Criterion 1 (macro F1 ≥ 0.55): 0.586 / 0.446 / 0.489.** Only seed 42 clears it. What I'd do: label more posts, especially `neutral`, the weakest label on every run. Improvement 1 showed the model is limited by data, not training steps (training loss fell to 0.63 while validation loss stayed near 1.02), and Improvement 2's longer inputs barely moved macro F1 (mean 0.498 → 0.507). Why I stopped: another 100+ carefully labelled posts is a full labelling pass, not a one-change fix.
+
+**Criterion 2 (beat the baseline by 0.05): −0.100 to −0.240 behind.** What I'd do: score the baseline on all three seed splits so every column is like-for-like, and try a larger pre-trained model fine-tuned on my labels. Why I stopped: zero-shot BART with my written definitions is the stronger classifier on this data. Two training changes cut the seed-42 gap from −0.314 to −0.100, but not to a lead.
+
+**Criterion 3 (every label ≥ 0.45): seed 7's `neutral` at 0.222.** Seeds 42 and 2024 now clear it, but `neutral` swings from 0.222 to 0.471 depending on the split. What I'd do: review the `neutral`/`negative` rows against my second rule (criticism framed as a question is `negative`), since that pair is the model's biggest confusion in every run, and relabel the 6 `positive` posts I found that break my hardest-boundary rule. Why I stopped: each relabel needs its own measured run, and with 32-post test sets (accuracy moving 0.125–0.156 between seeds), I couldn't tell a small real gain from split noise.
+
+**The gap between what I meant my labels to capture and what the model learned:**
+
+I meant `neutral` to mean "asks or explains without taking a stance," but the model learned something closer to "doesn't sound angry": on seed 42 it still called 5 of 11 real `neutral` posts `negative`, with only 2 going the other way. It did learn my `positive`/`negative` boundary well enough to meet criterion 4 on every seed, but not the subtler line between a genuine question and a criticism phrased as one.
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
