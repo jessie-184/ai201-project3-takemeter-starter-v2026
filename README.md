@@ -200,11 +200,6 @@ I then the next pre-labelled row and changed 1 labels. Most changes were among t
 I took a glance at the F1 values from running the notebook in Unit 5. The F1 of negative class is the highest and it barely got trained only 3 epochs. Therefore, my guess was that the trained model would only beat the baseline on negative with F1 of 0.600, because it predicted negative for almost every post, and would lose badly on neutral with lowest F1 (0.154).
 
 **What the gap actually means:**
-<!-- If the baseline matched your trained model, your fine-tuning added
-     nothing — and that is a real finding, not a failure. Say it plainly. -->
-**What the gap actually means:**
-
-**What the gap actually means:**
 
 My fine-tuning added nothing; the short fine-tuning even create confusion in making prediction. The zero-shot baseline beat my trained model on every measure (macro F1 0.686 vs. 0.372). My prediction was half right: it lost worst on `neutral` (−0.542), but it also lost on `negative`, because calling 28 of 32 posts `negative` gave perfect recall but poor precision (0.43).
 
@@ -242,82 +237,40 @@ The gap comes from my training run, not the task. After only 27 steps the loss w
 
 ## Verdicts and Diagnoses
 
-<!-- MET or MISSED against LAST UNIT's target. The target has to hold across
-     all three seeds, not turn up sometimes. -->
-
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Macro F1 on held-out set | ≥ 0.55 | MISSED | 0.372 / 0.182 / 0.361 across seeds 42 / 7 / 2024; below target on all three |
+| 2 | Trained beats baseline macro F1 | ≥ +0.05 | MISSED | Seed 42 (the only split the baseline scored): 0.372 vs 0.686, a gap of −0.314 |
+| 3 | Every label's F1 | ≥ 0.45 | MISSED | `positive` 0.364 / 0.000 / 0.000; `neutral` 0.154 / 0.000 / 0.526; at least one label below target on every seed |
+| 4 | positive↔negative swaps | ≤ 20% | MISSED | 6/21 (28.6%), 9/21 (42.9%), 8/21 (38.1%); all swaps were positive → negative |
+| 5 | Agreement with staff labels | ≥ 21/30 | MET | 30/30 (100%) from `agreement.py` |
 
 **Diagnoses**
 
-<!-- For each miss: the cause, and how you know. The four common causes are:
-     too few examples for a label, a boundary you applied inconsistently, a
-     genuinely hard label pair, and a task the model can't reach from this
-     much data.
+All four misses share one main cause: **the model can't reach this task with this much training.** It collapsed to my largest training label, `negative` (55 of 144). Evidence: the training loss stayed near the 1.10 guessing level after only 27 update steps; seed 42 predicted `negative` for 28 of 32 posts and seed 7 for all 32; and confidence averaged about 0.37 whether right or wrong, which is a model scoring all three labels nearly equally.
 
-     ⚠️ Use your agreement report as evidence. It is the only instrument you
-     have that can tell a LABELLING problem from a MODEL problem, and this
-     section is graded on whether you used it that way. -->
+**The agreement report points away from a labelling problem as the main cause.** I matched staff on 30/30 posts, so pile (a), "applying a written rule loosely," is empty, and I can apply a clear rule consistently. If my labels were the main problem, I'd expect the model to confuse specific label pairs in both directions. Instead every label drains into one column. Two limits: the staff set tested a different, easier taxonomy, and 188 of my 208 labels were AI pre-labelled, with six boundary posts I know contradict my own rule. Labelling noise may still matter, but it can't show up until the model learns enough to make real distinctions.
 
-
+- **Criterion 1 (macro F1):** undertrained model collapsing to the majority label, as above.
+- **Criterion 2 (baseline):** same cause, plus a head start for the baseline. BART-MNLI is pre-trained to judge whether text fits a description, and it read each whole post. My model read only the first 128 tokens (about 63% of my posts are longer) and had 144 examples.
+- **Criterion 3 (per-label F1):** collapse plus **too few examples for `positive`**. It's my smallest label (42 in training, 9 in test), so one post moves its F1 about 10 points, and it scored 0.000 on two seeds. `neutral` swung from 0.000 to 0.526, which shows how much the per-label scores depend on which posts land in the split.
+- **Criterion 4 (positive↔negative):** every swap on every seed went positive → negative, with 0 going the other way. That's the collapse again, not real confusion on my hardest boundary, so this run can't yet tell whether that boundary is **a genuinely hard pair** or inconsistently labelled. A better-trained model is needed before this criterion can test the boundary.
 
 ---
 
 ## Agreement Report
 
-<!-- Your rate against the staff set, and every disagreement adjudicated.
-
-     Remember you labelled these 30 under the STAFF taxonomy in
-     data/staff_taxonomy.md, not your own — so every argument below is made
-     from those definitions and those decision rules. -->
-
-**Agreement rate:** ___ / 30 = ___%
-
-<!-- Nobody grades this number. A 60% who argues every disagreement from the
-     stated rules beats a 95% who wrote "staff was right" nine times. Several
-     of the 30 were chosen because they're genuinely ambiguous — you should be
-     winning some of these. -->
+**Agreement rate:** 30 / 30 = 100%
 
 **Disagreements**
 
-<!-- Three lines each: the post, both labels, and who you think is right and
-     why — grounded in the staff definitions you were both applying.
+None. I matched staff on all 30 posts, so there is nothing to sort into piles (a), (b) or (c).
 
-     Then sort each into one of three piles:
-       (a) the rule covered it and I applied it loosely → a consistency problem
-       (b) the rule genuinely doesn't say               → a gap in the definitions
-       (c) the rule is ambiguous here and my reading is defensible → argue it.
-           This is a legitimate win.
-
-     Pile (a) is the one that matters most for your diagnosis: if you applied a
-     written rule two different ways on 30 posts, that is direct evidence about
-     what you did across your own 200. -->
-
-**1.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
-
-**2.**
-> *The post:*
->
-> *Staff said / I said:*
->
-> *My call, and why:*
->
-> *Which pile:*
+**Was the set easy, or is the rule tight?** Mostly the set was easy. The posts are grouped by type in id order (sp_001–010 cite measurements, sp_011–020 are short unsupported claims, sp_021–030 are in-the-moment personal moments), and most posts fit one definition cleanly. The staff decision rules did the work on the few boundary posts, such as [name one or two, e.g. a post that cites a number but only to decorate a confident claim]. So I'd say the rules are tight, but this set didn't test them hard.
 
 **What the pattern in my disagreements tells me:**
 
+With no disagreements, there's no evidence that I apply a written rule loosely, so pile (a) is empty. That counts against "inconsistent labelling" as the cause of my model's misses, and supports my reading that the model collapsed to `negative` because it was undertrained (loss near 1.10 after 27 steps, every label draining into one column). Two limits on that conclusion: this tested a different, easier taxonomy, not my own; and 188 of my 208 labels were AI pre-labelled, and I already know six boundary posts in my data were labelled against my own decision rule. So it shows I can apply a clear rule, not that my own labels are clean.
 
 
 ---
