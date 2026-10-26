@@ -209,17 +209,17 @@ The gap comes from my training run, not the task. After only 27 steps the loss w
 
 ## Run Log — Before
 
-All three seeds trained on an Apple Silicon GPU (MPS), torch 2.14.1, same settings as unit 5.
+All three seeds trained on an Apple Silicon GPU (MPS), torch 2.14.1, same settings as unit 5 (3 epochs).
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
 | 1. Macro F1 | ≥ 0.55 | 0.372 | 0.182 | 0.361 | MISSED |
-| 2. Beats baseline macro F1 | ≥ +0.05 (≥ 0.736) | −0.314 (0.372 vs 0.686) | — | — | MISSED |
+| 2. Beats baseline macro F1 | ≥ +0.05 (≥ 0.736) | −0.314 (0.372) | −0.504 (0.182) | −0.325 (0.361) | MISSED |
 | 3. Every label's F1 | ≥ 0.45 | positive 0.364, neutral 0.154 | positive 0.000, neutral 0.000 | positive 0.000 | MISSED |
 | 4. positive↔negative swaps | ≤ 20% | 6/21 = 28.6% | 9/21 = 42.9% | 8/21 = 38.1% | MISSED |
 | 5. Staff agreement | ≥ 21/30 | 30/30 | 30/30 | 30/30 | MET |
 
-Criterion 2 has one value because `baseline.py` scores only the seed-42 test split saved in `test_split.csv`.
+Criterion 2 compares every seed against the baseline's seed-42 score (0.686), because `baseline.py` scored only the seed-42 test split. Only the seed-42 column is like-for-like. Seeds 7 and 2024 test on different posts, so their differences are approximate.
 
 **Spread across seeds** (from the notebook's section 6):
 
@@ -253,7 +253,7 @@ Accuracy moved 0.094 across seeds, just under the 10-point line the notebook fla
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
 | 1 | Macro F1 on held-out set | ≥ 0.55 | MISSED | 0.372 / 0.182 / 0.361 across seeds 42 / 7 / 2024; below target on all three |
-| 2 | Trained beats baseline macro F1 | ≥ +0.05 | MISSED | Seed 42 (the only split the baseline scored): 0.372 vs 0.686, a gap of −0.314 |
+| 2 | Trained beats baseline macro F1 | ≥ +0.05 (≥ 0.736) | MISSED | Each seed vs the baseline's 0.686: −0.314 / −0.504 / −0.325 across seeds 42 / 7 / 2024; below the baseline on all three. Only seed 42 is like-for-like, because the baseline scored only that test split |
 | 3 | Every label's F1 | ≥ 0.45 | MISSED | `positive` 0.364 / 0.000 / 0.000; `neutral` 0.154 / 0.000 / 0.526; at least one label below target on every seed |
 | 4 | positive↔negative swaps | ≤ 20% | MISSED | 6/21 (28.6%), 9/21 (42.9%), 8/21 (38.1%); all swaps were positive → negative |
 | 5 | Agreement with staff labels | ≥ 21/30 | MET | 30/30 (100%) from `agreement.py` |
@@ -290,25 +290,46 @@ With no disagreements, there's no evidence that I apply a written rule loosely, 
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:** `EPOCHS` from 3 to 10 (about 90 update steps instead of 27). Nothing else.
 
-**Which diagnosis pointed at it:**
+**Which diagnosis pointed at it:** All four misses traced to the model collapsing to `negative`: training loss stuck at the 1.10 guessing level after 27 steps, and seed 7 predicted `negative` for every post. My 30/30 staff agreement argued against a labelling cause, so I changed training rather than labels.
 
-### Run Log — After
+## Run Log — After
+
+`EPOCHS` changed from 3 to 10 (about 90 update steps instead of 27); every other setting the same as Before. Apple Silicon GPU (MPS), torch 2.14.1.
 
 | Criterion | Target | Seed 42 | Seed 7 | Seed 2024 | Verdict |
 |---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |
+| 1. Macro F1 | ≥ 0.55 | 0.500 | 0.408 | 0.586 | MISSED |
+| 2. Beats baseline macro F1 | ≥ +0.05 (≥ 0.736) | −0.186 (0.500) | −0.278 (0.408) | −0.100 (0.586) | MISSED |
+| 3. Every label's F1 | ≥ 0.45 | all 0.500 | positive 0.421, neutral 0.250 | all ≥ 0.533 | MISSED |
+| 4. positive↔negative swaps | ≤ 20% | 6/21 = 28.6% | 6/21 = 28.6% | 4/21 = 19.0% | MISSED |
+| 5. Staff agreement | ≥ 21/30 | 30/30 | 30/30 | 30/30 | MET |
+
+Criterion 2 compares every seed against the baseline's seed-42 score (0.686), because `baseline.py` scored only the seed-42 test split. Only the seed-42 column is like-for-like.
+
+**Spread across seeds:**
+
+| Measure | Seed 42 | Seed 7 | Seed 2024 | Spread |
+|---|---|---|---|---|
+| Overall accuracy | 0.500 | 0.438 | 0.594 | 0.156 |
+| Macro F1 | 0.500 | 0.408 | 0.586 | 0.178 |
+| F1 — `positive` | 0.500 | 0.421 | 0.533 | 0.112 |
+| F1 — `negative` | 0.500 | 0.552 | 0.615 | 0.115 |
+| F1 — `neutral` | 0.500 | 0.250 | 0.609 | 0.359 |
+
+Accuracy moved 0.156 across seeds, more than the 10-point line, so the dataset is too small for a stable measure. Seed 2024 meets criteria 1, 3 and 4, and seed 42 meets criterion 3, but a target has to hold on all three seeds. Seed 7 misses all of them.
 
 **Did it help, and how do I know:**
 
-<!-- If it didn't, say so. Relabelling that didn't help is a genuinely
-     interesting result and earns full credit. -->
+Yes, partly. Comparing Run Log — Before and After on the same three seeds:
 
+- **Macro F1 rose on every seed:** 0.372 → 0.500, 0.182 → 0.408, 0.361 → 0.586 (mean 0.305 → 0.498).
+- **The collapse is gone.** Before, seed 7 predicted `negative` for every post and `positive` F1 was 0.000 on two seeds. After, `positive` F1 is at least 0.421 on every seed, and the seed-42 matrix spreads predictions across all three labels.
+- **Positive↔negative swaps now go both ways** (seed 7: 3 and 3) instead of all positive → negative. The model is now making real distinctions on that boundary, so criterion 4 is now measuring the boundary itself, not the collapse.
+- **Confidence now means something:** on seeds 42 and 7 the most-confident third was right 70% of the time and the least-confident third only 20% (seed 2024 didn't follow the pattern).
+
+It still misses criteria 1–4, and it's still below the baseline (0.500 vs 0.686 on seed 42). Seed 2024 meets criteria 1, 3 and 4, but seed 7 misses them all, and a target has to hold on all three. Two results limit how far the fix can go. First, accuracy now moves 0.156 across seeds, over the 10-point line, so with 32 test posts the measurement itself is unstable. Second, in the 10-epoch training run, training loss fell from 1.10 to 0.63 while validation loss only moved from 1.09 to about 1.02. The model fits its 144 training posts far better than new ones. So more epochs fixed the undertraining, and what limits the model now is the amount of data, not the number of training steps.
 
 
 ---
